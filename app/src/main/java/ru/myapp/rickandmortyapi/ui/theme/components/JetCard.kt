@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,11 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.bluerose.fishgallery.ui.utils.advancedShadow
-import ru.myapp.rickandmortyapi.ui.theme.RickAndMortyAPITheme
+import ru.myapp.rickandmortyapi.ui.utils.advancedShadow
 
 
 @Composable
@@ -35,7 +34,7 @@ fun JetCard(
     name: String,
     status: String,
     gender: String,
-    race: String,
+    species: String,
     imagePath: String,
     onClick: () -> Unit,
 ) {
@@ -49,8 +48,7 @@ fun JetCard(
                 alpha = 0.25f,
                 cornersRadius = shape,
                 shadowBlurRadius = 2.dp,
-                offsetY = 2.dp
-            )
+                offsetY = 2.dp)
             .clip(shape = RoundedCornerShape(shape))
             .clickable(onClick = onClick)
     ) {
@@ -75,14 +73,26 @@ fun JetCard(
                         shape = RoundedCornerShape(shape, 0.dp, 0.dp, 0.dp))
                     .align(Alignment.BottomEnd)
                     .padding(horizontal = 16.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
+                /*Icon(
                     imageVector = ImageVector.vectorResource(com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_add_circle_20_filled),
                     contentDescription = null,
                     tint = Color.Green,
                     modifier = Modifier.size(10.dp)
+                )*/
+
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(
+                            color = when (status.lowercase()) {
+                                "alive" -> Color.Green
+                                "dead" -> Color.Red
+                                else -> Color.Gray
+                            },
+                            shape = CircleShape)
                 )
 
                 Text(
@@ -107,12 +117,14 @@ fun JetCard(
             Text(
                 text = name,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
                 //color = Color.Black
             )
 
             Text(
-                text = "$gender | $race",
+                text = "$gender | $species",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
                 //color = Color.Black

@@ -26,9 +26,10 @@ fun JetIconButton(
         contentDescription = null,
         tint = tint,
         modifier = modifier
+            .size(56.dp)
             .clip(CircleShape)
             .clickable(onClick = onClick)
             .padding(16.dp)
-            .size(24.dp)
+
     )
 }

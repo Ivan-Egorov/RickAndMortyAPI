@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -67,4 +69,13 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
     implementation("com.microsoft.design:fluent-system-icons:1.1.245@aar")
+
+    implementation(libs.kotlinx.serialization.json)
+
+//    implementation ("io.ktor:ktor-client-core:1.0.1")
+//    implementation ("io.ktor:ktor-client-android:1.0.1")
+    // Ktor Core
+    implementation("io.ktor:ktor-client-core:3.2.1")
+    // Движок для Android
+    implementation("io.ktor:ktor-client-android:3.2.1")
 }

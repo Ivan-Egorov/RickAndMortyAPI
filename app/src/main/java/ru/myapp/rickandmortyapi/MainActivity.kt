@@ -22,6 +22,8 @@ import ru.myapp.rickandmortyapi.ui.theme.RickAndMortyAPITheme
 import ru.myapp.rickandmortyapi.ui.theme.components.JetCard
 
 import coil3.compose.AsyncImage
+import ru.myapp.rickandmortyapi.ui.navigation.NavHostScreen
+import ru.myapp.rickandmortyapi.ui.screens.search.SearchViewScreen
 import ru.myapp.rickandmortyapi.ui.screens.search.views.SearchViewDisplay
 
 class MainActivity : ComponentActivity() {
@@ -45,19 +47,13 @@ class MainActivity : ComponentActivity() {
             }*/
 
             RickAndMortyAPITheme {
-                SearchViewDisplay()
+                //SearchViewDisplay()
+                NavHostScreen()
 
-                /*JetCard(
-                    modifier = Modifier.padding(20.dp),
-                    name = "Trandor",
-                    status = "Alive",
-                    gender = "Male",
-                    race = "Alien",
-                    imagePath = "file:///android_asset/img.png"
-                ) {}*/
             }
         }
     }
+
 }
 
 

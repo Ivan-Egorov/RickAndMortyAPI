@@ -10,11 +10,11 @@ sealed interface SearchEvent {
         val listOfCharacters: List<CharacterPreview>
     ): SearchEvent
 
-    data object NextPage: SearchEvent
-
-    data object PreviousPage: SearchEvent
-
     data class OpenDetails(val id: Int): SearchEvent
+
+    data class ChangePage(val url: String): SearchEvent
+
+    //data class PreviousPage(val url: String): SearchEvent
 
     data class Search(val query: String): SearchEvent
 }

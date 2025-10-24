@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ru.myapp.rickandmortyapi.domain.models.CharacterPreview
+import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 import ru.myapp.rickandmortyapi.ui.utils.advancedShadow
 import ru.myapp.rickandmortyapi.ui.theme.components.JetCard
 import ru.myapp.rickandmortyapi.ui.theme.components.JetIconButton
@@ -46,7 +47,8 @@ import ru.myapp.rickandmortyapi.ui.theme.components.JetIconButtonCircle
 fun SearchViewDisplay(
     previousPage: String,
     nextPage: String,
-    listOfCharacters: List<CharacterPreview>
+    listOfCharacters: List<CharacterPreview>,
+    dispatcher: (SearchEvent) -> Unit
 ) {
     val searchFieldValue = rememberSaveable { mutableStateOf("") }
 
@@ -76,10 +78,20 @@ fun SearchViewDisplay(
                     //imagePath = "file:///android_asset/img.png",
                     imagePath = character.imagePath,
                     //imagePath = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                    modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                ) {}
+                    modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
+                    onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
+                )
 
             }
+
+            item {
+                Text(previousPage)
+            }
+
+            item {
+                Text(nextPage)
+            }
+
             /*items(20) {
                 JetCard(
                     name = "Trandor",
@@ -157,7 +169,7 @@ fun SearchViewDisplay(
                     .padding(start = startPadding+ 4.dp)
                     .align(Alignment.CenterStart),
                 iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_left_24_regular
-            ) { }
+            ) { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
         }
 
         if (nextPage != "null") {
@@ -166,7 +178,7 @@ fun SearchViewDisplay(
                     .padding(end = endPadding + 4.dp)
                     .align(Alignment.CenterEnd),
                 iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_right_24_regular
-            ) { }
+            ) { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
         }
     }
 }

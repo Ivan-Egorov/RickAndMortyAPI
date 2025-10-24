@@ -1,4 +1,4 @@
-package ru.myapp.rickandmortyapi.ui.screens.search
+package ru.myapp.rickandmortyapi.ui.screens.details
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -28,9 +28,74 @@ import org.json.JSONObject
 import ru.myapp.rickandmortyapi.domain.models.CharacterPreview
 import ru.myapp.rickandmortyapi.ui.screens.details.models.DetailsEvent
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
+import kotlin.String
 
-class SearchViewModel: ViewModel() {
-    //val baseUrl = "https://rickandmortyapi.com/api/character"
+class DetailsViewModel: ViewModel() {
+    val baseUrl = "https://rickandmortyapi.com/api/character"
+
+    @Composable
+    fun GetCharacterDetails(
+        id: Int,
+        dispatcher: (DetailsEvent) -> Unit
+    ) {
+        var name = "unknown"
+        var status = "unknown"
+        var species = "unknown"
+        var type = "unknown"
+        var gender = "unknown"
+        var origin = "unknown"
+        var location = "unknown"
+        var image = "file:///android_asset/default.png"
+        val episodes = mutableListOf<String>()
+
+
+        val client = HttpClient()
+        LaunchedEffect(key1 = Unit) {
+            try {
+                val response = client.get("$baseUrl/$id")
+                val jsonResponse: JSONObject = JSONObject(response.bodyAsText())
+
+                name = jsonResponse.getString("name")
+                status = jsonResponse.getString("status")
+                species = jsonResponse.getString("species")
+                type = jsonResponse.getString("type")
+                gender = jsonResponse.getString("gender")
+
+                val jsonOrigin = jsonResponse.getJSONObject("origin")
+                origin = jsonOrigin.getString("name")
+
+                val jsonLocation = jsonResponse.getJSONObject("location")
+                location = jsonLocation.getString("name")
+
+                image = jsonResponse.getString("image")
+
+                val jsonEpisodes = jsonResponse.getJSONArray("episode")
+                for (i in 0..<jsonEpisodes.length()) {
+                    val episode = jsonEpisodes.getString(i) ?: "/"
+                    val lastIndex = episode.lastIndexOf('/')
+                    episodes.add(episode.substring(lastIndex + 1))
+                }
+
+            } catch (e: Exception) {
+                e.localizedMessage ?: "error"
+            }
+            finally {
+                client.close()
+            }
+
+            dispatcher.invoke(DetailsEvent.EnterScreen(
+                name = name,
+                status = status,
+                species = species,
+                type = type,
+                gender = gender,
+                origin = origin,
+                location = location,
+                image = image,
+                episodes = episodes,
+            ))
+        }
+    }
 
     //val urlCharacters = "$baseUrl/character"
     /*@Composable
@@ -54,16 +119,8 @@ class SearchViewModel: ViewModel() {
     }*/
 
     /*@Composable
-    fun GetAllCharacters(
+    fun GetCharacters(
         dispatcher: (SearchEvent) -> Unit
-    ) {
-        GetByUrl(dispatcher, baseUrl)
-    }*/
-
-    @Composable
-    fun GetByUrl(
-        dispatcher: (SearchEvent) -> Unit,
-        url: String
     ) {
         var previousPage = "null"
         var nextPage = "null"
@@ -74,55 +131,6 @@ class SearchViewModel: ViewModel() {
 
             try {
                 //val response = client.get("https://rickandmortyapi.com/api/character/?name=rick&status=dead")
-                //val response = client.get("https://rickandmortyapi.com/api/character/?name=rick")
-                val response = client.get(url)
-                val jsonResponse: JSONObject = JSONObject(response.bodyAsText())
-
-                val jsonInfo = jsonResponse.getJSONObject("info")
-                previousPage = jsonInfo.getString("prev")
-                nextPage = jsonInfo.getString("next")
-
-                val jsonResults = jsonResponse.getJSONArray("results")
-                for (i in 0..<jsonResults.length()) {
-                    val character = jsonResults.getJSONObject(i)
-                    listOfCharacters.add(CharacterPreview(
-                        id = character.getInt("id"),
-                        name = character.getString("name"),
-                        status = character.getString("status"),
-                        gender = character.getString("gender"),
-                        species = character.getString("species"),
-                        imagePath = character.getString("image"),
-                    ))
-                }
-
-            } catch (e: Exception) {
-                e.localizedMessage ?: "error"
-            }
-            finally {
-                client.close()
-            }
-
-            dispatcher.invoke(SearchEvent.EnterScreen(
-                previousPage = previousPage,
-                nextPage = nextPage,
-                listOfCharacters = listOfCharacters
-            ))
-        }
-    }
-
-    /*@Composable
-    fun GetCharacterDetails(
-        id: Int,
-        dispatcher: (DetailsEvent) -> Unit
-    ) {
-        var previousPage = "null"
-        var nextPage = "null"
-        val listOfCharacters = mutableListOf<CharacterPreview>()
-
-        val client = HttpClient()
-        LaunchedEffect(key1 = Unit) {
-
-            try {
                 val response = client.get("https://rickandmortyapi.com/api/character/?name=rick")
                 val jsonResponse: JSONObject = JSONObject(response.bodyAsText())
 
@@ -157,6 +165,8 @@ class SearchViewModel: ViewModel() {
             ))
         }
     }*/
+
+
 
 }
 

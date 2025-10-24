@@ -5,7 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import ru.myapp.rickandmortyapi.ui.screens.details.DetailsViewScreen
+import ru.myapp.rickandmortyapi.ui.screens.details.DetailsScreen
 import ru.myapp.rickandmortyapi.ui.screens.search.SearchViewScreen
 
 @Composable
@@ -17,8 +17,7 @@ fun NavHostScreen() {
 
         composable<NavScreen.Details> { backStackEntry ->
             val entry = backStackEntry.toRoute<NavScreen.Details>()
-            DetailsViewScreen(navController, entry.id)
-
+            DetailsScreen(navController, entry.id)
         }
     }
 }

@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -51,7 +53,7 @@ fun DetailsViewDisplay(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Spacer(modifier = Modifier.size(20.dp))
 
@@ -63,12 +65,19 @@ fun DetailsViewDisplay(
             )
 
             DetailsTextTemplate("name: ", name)
+            SimpleDivider()
             DetailsTextTemplate("status: ", status)
+            SimpleDivider()
             DetailsTextTemplate("species: ", species)
+            SimpleDivider()
             DetailsTextTemplate("type: ", type)
+            SimpleDivider()
             DetailsTextTemplate("gender: ", gender)
+            SimpleDivider()
             DetailsTextTemplate("origin: ", origin)
+            SimpleDivider()
             DetailsTextTemplate("location: ", location)
+            SimpleDivider()
             DetailsTextTemplate("episodes: ", episodes.toString())
 
             Spacer(modifier = Modifier.size(20.dp))
@@ -99,5 +108,14 @@ fun DetailsTextTemplate(
                 append(secondLine)
             }
         }
+    )
+}
+
+@Composable
+fun SimpleDivider() {
+    HorizontalDivider(
+        modifier = Modifier.fillMaxWidth(),
+        thickness = 1.dp,
+        color = Color.Black
     )
 }

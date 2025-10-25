@@ -40,6 +40,7 @@ fun SearchViewScreen(
     //val viewModel = remember { SearchViewModel() }
     val viewModel = SearchViewModel()
     val viewState = remember { mutableStateOf<SearchViewState>(SearchViewState.Loading) }
+    //val viewAction = remember { mutableStateOf<SearchAction?>(null) }
 
     val baseUrl = "https://rickandmortyapi.com/api/character"
     val url = rememberSaveable { mutableStateOf(baseUrl) }
@@ -59,6 +60,10 @@ fun SearchViewScreen(
             is SearchEvent.ChangePage -> {
                 //viewAction.value = SearchAction.UpdateByUrl(event.url)
                 url.value = event.url
+                viewState.value = SearchViewState.Loading
+            }
+            is SearchEvent.Search -> {
+                url.value = "$baseUrl/?name=${event.name}"
                 viewState.value = SearchViewState.Loading
             }
             else -> {}
@@ -87,5 +92,15 @@ fun SearchViewScreen(
             )
         }
     }
+
+    /*when (val action = viewAction.value) {
+        SearchAction.ShowFiltersDialog -> {
+            FiltersDialog(
+                dispatcher = dispatcher,
+                onClose = { viewAction.value = null} )
+        }
+        else -> {}
+    }*/
+
 }
 

@@ -30,34 +30,14 @@ import ru.myapp.rickandmortyapi.ui.screens.details.models.DetailsEvent
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 
 class SearchViewModel: ViewModel() {
-    //val baseUrl = "https://rickandmortyapi.com/api/character"
-
-    //val urlCharacters = "$baseUrl/character"
-    /*@Composable
-    fun getResponse() {
-        var text by remember { mutableStateOf("Loading") }
-
-        val client = HttpClient()
-
-        LaunchedEffect(true) {
-            try {
-                val response = client.get("https://rickandmortyapi.com/api/character/?name=trandor&status=alive")
-                text =  response.bodyAsText()
-            } catch (e: Exception) {
-                e.localizedMessage ?: "error"
-            }
-            finally {
-                client.close()
-            }
-        }
-        Text(text = text, Modifier.padding(10.dp), fontSize = 16.sp)
-    }*/
+    val baseUrl = "https://rickandmortyapi.com/api/character"
 
     /*@Composable
-    fun GetAllCharacters(
-        dispatcher: (SearchEvent) -> Unit
+    fun GetByName(
+        dispatcher: (SearchEvent) -> Unit,
+        name: String
     ) {
-        GetByUrl(dispatcher, baseUrl)
+        GetByUrl(dispatcher, "$baseUrl/?name=$name")
     }*/
 
     @Composable
@@ -109,54 +89,6 @@ class SearchViewModel: ViewModel() {
             ))
         }
     }
-
-    /*@Composable
-    fun GetCharacterDetails(
-        id: Int,
-        dispatcher: (DetailsEvent) -> Unit
-    ) {
-        var previousPage = "null"
-        var nextPage = "null"
-        val listOfCharacters = mutableListOf<CharacterPreview>()
-
-        val client = HttpClient()
-        LaunchedEffect(key1 = Unit) {
-
-            try {
-                val response = client.get("https://rickandmortyapi.com/api/character/?name=rick")
-                val jsonResponse: JSONObject = JSONObject(response.bodyAsText())
-
-                val jsonInfo = jsonResponse.getJSONObject("info")
-                previousPage = jsonInfo.getString("prev")
-                nextPage = jsonInfo.getString("next")
-
-                val jsonResults = jsonResponse.getJSONArray("results")
-                for (i in 0..<jsonResults.length()) {
-                    val character = jsonResults.getJSONObject(i)
-                    listOfCharacters.add(CharacterPreview(
-                        id = character.getInt("id"),
-                        name = character.getString("name"),
-                        status = character.getString("status"),
-                        gender = character.getString("gender"),
-                        species = character.getString("species"),
-                        imagePath = character.getString("image"),
-                    ))
-                }
-
-            } catch (e: Exception) {
-                e.localizedMessage ?: "error"
-            }
-            finally {
-                client.close()
-            }
-
-            dispatcher.invoke(SearchEvent.EnterScreen(
-                previousPage = previousPage,
-                nextPage = nextPage,
-                listOfCharacters = listOfCharacters
-            ))
-        }
-    }*/
 
 }
 

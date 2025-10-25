@@ -23,20 +23,20 @@ val Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.5.sp
     ),
-    // card title
+    // card description
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W400,
-        fontSize = 12.sp,
-        lineHeight = 14.sp,
+        fontSize = 14.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.sp
     ),
     // search line
     displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W500,
-        fontSize = 14.sp,
-        lineHeight = 16.sp,
+        fontSize = 16.sp,
+        lineHeight = 18.sp,
         letterSpacing = 0.sp
     ),
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import ru.myapp.rickandmortyapi.ui.theme.RickAndMortyAPITheme
 import ru.myapp.rickandmortyapi.ui.utils.advancedShadow
 
+/*
 @Composable
 fun JetIconButtonCircle(
     modifier: Modifier = Modifier,
@@ -28,22 +29,6 @@ fun JetIconButtonCircle(
     Box(
         modifier = modifier
             .size(56.dp)
-
-            /*.background(
-                color = MaterialTheme.colorScheme.onPrimary.copy(0.2f),
-                shape = CircleShape)
-            .border(
-                width = 2.dp,
-                color = color,
-                shape = CircleShape
-            )*/
-            /*.dashedBorder(
-                width = 2.dp,
-                color = color,
-                shape = CircleShape,
-                on = 8.dp,
-                off = 8.dp)*/
-
             .advancedShadow(
                 color = Color.Black,
                 alpha = 0.25f,
@@ -76,4 +61,4 @@ fun JetIconButtonCirclePreview() {
             iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_caret_left_24_filled
         ) {}
     }
-}
+}*/

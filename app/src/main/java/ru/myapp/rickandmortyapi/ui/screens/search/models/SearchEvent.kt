@@ -14,6 +14,8 @@ sealed interface SearchEvent {
 
     data class ChangePage(val url: String): SearchEvent
 
-    data class Search(val name: String): SearchEvent
+    data class Search(
+        val name: String
+    ): SearchEvent
 
 }

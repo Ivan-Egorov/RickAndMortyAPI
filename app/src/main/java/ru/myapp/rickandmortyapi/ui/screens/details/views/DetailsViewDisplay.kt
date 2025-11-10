@@ -28,7 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import ru.myapp.rickandmortyapi.ui.screens.details.models.DetailsEvent
-import ru.myapp.rickandmortyapi.ui.theme.components.JetIconButtonCircle
+import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
+import ru.myapp.rickandmortyapi.ui.theme.components.JetHorizontalButton
 
 @Composable
 fun DetailsViewDisplay(
@@ -45,7 +46,51 @@ fun DetailsViewDisplay(
 ) {
     val scrollState = rememberScrollState()
 
-    Box(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(horizontal = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Spacer(modifier = Modifier.size(20.dp))
+
+        AsyncImage(
+            model = image,
+            contentDescription = "",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
+        DetailsTextTemplate("name: ", name)
+        SimpleDivider()
+        DetailsTextTemplate("status: ", status)
+        SimpleDivider()
+        DetailsTextTemplate("species: ", species)
+        SimpleDivider()
+        DetailsTextTemplate("type: ", type)
+        SimpleDivider()
+        DetailsTextTemplate("gender: ", gender)
+        SimpleDivider()
+        DetailsTextTemplate("origin: ", origin)
+        SimpleDivider()
+        DetailsTextTemplate("location: ", location)
+        SimpleDivider()
+        DetailsTextTemplate("episodes: ", episodes.toString())
+
+        JetHorizontalButton(
+            text = "Return",
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            textColor = Color.Black,
+            modifier = Modifier
+                .fillMaxWidth(),
+            onClick = { dispatcher.invoke(DetailsEvent.Close) }
+        )
+
+        Spacer(modifier = Modifier.size(20.dp))
+    }
+
+    /*Box(
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
@@ -90,7 +135,7 @@ fun DetailsViewDisplay(
             iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_left_24_regular,
             onClick = { dispatcher.invoke(DetailsEvent.Close) }
         )
-    }
+    }*/
 
 }
 

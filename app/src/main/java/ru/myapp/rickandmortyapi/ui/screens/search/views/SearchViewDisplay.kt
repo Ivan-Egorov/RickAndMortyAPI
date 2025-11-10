@@ -2,7 +2,6 @@ package ru.myapp.rickandmortyapi.ui.screens.search.views
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,29 +14,26 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -45,8 +41,8 @@ import ru.myapp.rickandmortyapi.domain.models.CharacterPreview
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 import ru.myapp.rickandmortyapi.ui.utils.advancedShadow
 import ru.myapp.rickandmortyapi.ui.theme.components.JetCard
+import ru.myapp.rickandmortyapi.ui.theme.components.JetHorizontalButton
 import ru.myapp.rickandmortyapi.ui.theme.components.JetIconButton
-import ru.myapp.rickandmortyapi.ui.theme.components.JetIconButtonCircle
 
 @Composable
 fun SearchViewDisplay(
@@ -57,10 +53,15 @@ fun SearchViewDisplay(
 ) {
     val searchField = rememberSaveable { mutableStateOf("") }
     val showFilters = rememberSaveable { mutableStateOf(false) }
-    val filterStatus = rememberSaveable { mutableStateOf("") }
+    val filterAliveStatus = rememberSaveable { mutableStateOf(false) }
+    val filterDeadStatus = rememberSaveable { mutableStateOf(false) }
+    val filterUnknownStatus = rememberSaveable { mutableStateOf(false) }
     val filterSpecies = rememberSaveable { mutableStateOf("") }
     val filterType = rememberSaveable { mutableStateOf("") }
-    val filterGender = rememberSaveable { mutableStateOf("") }
+    val filterMaleGender = rememberSaveable { mutableStateOf(false) }
+    val filterFemaleGender = rememberSaveable { mutableStateOf(false) }
+    val filterGenderless = rememberSaveable { mutableStateOf(false) }
+    val filterUnknownGender = rememberSaveable { mutableStateOf(false) }
 
     //val portrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -69,6 +70,7 @@ fun SearchViewDisplay(
     val bottomPadding = WindowInsets.safeContent.asPaddingValues().calculateBottomPadding()
     val startPadding = if (landscape) WindowInsets.safeContent.asPaddingValues().calculateStartPadding(LayoutDirection.Ltr) else 0.dp
     val endPadding = if (landscape) WindowInsets.safeContent.asPaddingValues().calculateEndPadding(LayoutDirection.Ltr) else 0.dp
+    val horizontalPadding = 16.dp
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -85,129 +87,271 @@ fun SearchViewDisplay(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
                         //.background(color = MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = startPadding + horizontalPadding,
+                                end = endPadding + horizontalPadding),
+                        //verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            FilterName("status:")
-                        }
-
-                        TextField(
-                            value = filterStatus.value,
-                            onValueChange = {},
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            FilterName("species:")
-                        }
-
-                        TextField(
-                            value = filterSpecies.value,
-                            onValueChange = { filterSpecies.value = it },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            FilterName("type:")
-                        }
-
-                        TextField(
-                            value = filterType.value,
-                            onValueChange = { filterType.value = it },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            FilterName("gender:")
-                        }
-
-                        TextField(
-                            value = filterGender.value,
-                            onValueChange = {},
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .background(color = MaterialTheme.colorScheme.surface)
-                                .clickable(onClick = {
-                                    dispatcher.invoke(SearchEvent.Search(searchField.value))
-                                })
-                                .padding(vertical = 16.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
-                                text = "Apply",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.align(Alignment.Center)
+                            Box(modifier = Modifier.weight(1f)) {
+                                FilterName("status:")
+                            }
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterAliveStatus.value,
+                                    onCheckedChange = { filterAliveStatus.value = !filterAliveStatus.value }
+                                )
+                                FilterName("alive")
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {}
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterDeadStatus.value,
+                                    onCheckedChange = { filterDeadStatus.value = !filterDeadStatus.value }
+                                )
+                                FilterName("dead")
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {}
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterUnknownStatus.value,
+                                    onCheckedChange = { filterUnknownStatus.value = !filterUnknownStatus.value }
+                                )
+                                FilterName("unknown status")
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                FilterName("species:")
+                            }
+
+                            TextField(
+                                value = filterSpecies.value,
+                                onValueChange = { filterSpecies.value = it },
+                                modifier = Modifier.weight(1f),
+                                textStyle = MaterialTheme.typography.displayMedium,
+                                placeholder = {
+                                    Text(
+                                        text = "any species",
+                                        style = MaterialTheme.typography.displayMedium,
+                                        color = Color.Black.copy(0.5f)
+                                    )
+                                },
+                                colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                                )
                             )
                         }
 
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .background(color = MaterialTheme.colorScheme.surface)
-                                .clickable(onClick = {
-                                    showFilters.value = false
-                                    filterStatus.value = ""
-                                    filterSpecies.value = ""
-                                    filterType.value = ""
-                                    filterGender.value = ""
-                                })
-                                .padding(vertical = 16.dp)
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
-                                text = "Discard",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.Black,
-                                modifier = Modifier.align(Alignment.Center)
+                            Box(modifier = Modifier.weight(1f)) {
+                                FilterName("type:")
+                            }
+
+                            TextField(
+                                value = filterType.value,
+                                onValueChange = { filterType.value = it },
+                                modifier = Modifier.weight(1f),
+                                textStyle = MaterialTheme.typography.displayMedium,
+                                placeholder = {
+                                    Text(
+                                        text = "any type",
+                                        style = MaterialTheme.typography.displayMedium,
+                                        color = Color.Black.copy(0.5f)
+                                    )
+                                },
+                                colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                                )
                             )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                FilterName("gender:")
+                            }
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterMaleGender.value,
+                                    onCheckedChange = { filterMaleGender.value = !filterMaleGender.value }
+                                )
+                                FilterName("male")
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {}
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterFemaleGender.value,
+                                    onCheckedChange = { filterFemaleGender.value = !filterFemaleGender.value }
+                                )
+                                FilterName("female")
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {}
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterGenderless.value,
+                                    onCheckedChange = { filterGenderless.value = !filterGenderless.value }
+                                )
+                                FilterName("genderless")
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {}
+
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = filterUnknownGender.value,
+                                    onCheckedChange = { filterUnknownGender.value = !filterUnknownGender.value }
+                                )
+                                FilterName("unknown gender")
+                            }
                         }
                     }
 
-                    HorizontalDivider(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        thickness = 1.dp,
-                        color = Color.Black
-                    )
+                        horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        JetHorizontalButton(
+                            text = "Apply filters",
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            textColor = Color.Black,
+                            modifier = Modifier.weight(1f),
+                            shape = RectangleShape,
+                            onClick = { dispatcher.invoke(SearchEvent.Search(searchField.value)) }
+                        )
+
+                        JetHorizontalButton(
+                            text = "Discard",
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            textColor = Color.Black.copy(0.5f),
+                            modifier = Modifier.weight(1f),
+                            shape = RectangleShape,
+                            onClick = {
+                                showFilters.value = false
+                                filterAliveStatus.value = false
+                                filterDeadStatus.value = false
+                                filterUnknownStatus.value = false
+                                filterSpecies.value = ""
+                                filterType.value = ""
+                                filterMaleGender.value = false
+                                filterFemaleGender.value = false
+                                filterGenderless.value = false
+                                filterUnknownGender.value = false
+                            }
+                        )
+                    }
                 }
             }
 
-            // Characters
+            // Characters table
             LazyVerticalGrid(
-                modifier = Modifier.padding(start = startPadding, end = endPadding),
-                columns = GridCells.FixedSize(190.dp),
+                modifier = Modifier.padding(
+                    start = startPadding + horizontalPadding - 4.dp,
+                    end = endPadding + horizontalPadding - 4.dp),
+                //columns = GridCells.FixedSize(190.dp),
+                columns = GridCells.Fixed(if (landscape) 4 else 2),
                 horizontalArrangement = Arrangement.Center
             ) {
                 items(listOfCharacters.size) { index ->
@@ -223,15 +367,59 @@ fun SearchViewDisplay(
                         modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
                         onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
                     )
-
                 }
 
-                item {
-                    Text(previousPage)
+                val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
+                if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
+                    items(numberOfEmptySockets) {
+                        EmptySocket()
+                    }
                 }
 
-                item {
-                    Text(nextPage)
+                if (previousPage != "null" || nextPage != "null") {
+                    if (previousPage != "null") {
+                        item {
+                            JetHorizontalButton(
+                                text = "Previous page",
+                                backgroundColor = MaterialTheme.colorScheme.primary,
+                                textColor = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier
+                                    .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
+                                onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
+                            )
+                        }
+                    } else {
+                        item {
+                            EmptySocket()
+                        }
+                    }
+
+                    if (landscape) {
+                        items(2) {
+                            EmptySocket()
+                        }
+                    }
+
+                    if (nextPage != "null") {
+                        item {
+                            JetHorizontalButton(
+                                text = "Next page",
+                                backgroundColor = MaterialTheme.colorScheme.primary,
+                                textColor = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier
+                                    .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
+                                onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
+                            )
+                        }
+                    } else {
+                        item {
+                            EmptySocket()
+                        }
+                    }
                 }
 
                 item {
@@ -256,8 +444,8 @@ fun SearchViewDisplay(
                 .background(color = MaterialTheme.colorScheme.primary)
                 .padding(
                     top = topPadding,
-                    start = startPadding + 4.dp,
-                    end = endPadding + 4.dp),
+                    start = startPadding + horizontalPadding,
+                    end = endPadding + horizontalPadding),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(0.dp)
         ) {
@@ -293,11 +481,11 @@ fun SearchViewDisplay(
 
             JetIconButton(
                 iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_filter_24_regular,
-                onClick = { showFilters.value = true }
+                onClick = { showFilters.value = !showFilters.value }
             )
         }
 
-        if (previousPage != "null") {
+        /*if (previousPage != "null") {
             JetIconButtonCircle(
                 modifier = Modifier
                     .padding(start = startPadding+ 4.dp)
@@ -313,7 +501,7 @@ fun SearchViewDisplay(
                     .align(Alignment.CenterEnd),
                 iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_right_24_regular
             ) { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
-        }
+        }*/
     }
 }
 
@@ -325,5 +513,15 @@ fun FilterName(
         text = name,
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
+    )
+}
+
+@Composable
+fun EmptySocket() {
+    Box(
+        modifier = Modifier
+            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+            .fillMaxWidth()
+            .height(56.dp)
     )
 }

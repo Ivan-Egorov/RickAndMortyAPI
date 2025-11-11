@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -34,9 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.microsoft.fluent.mobile.icons.R
 import ru.myapp.rickandmortyapi.domain.models.CharacterPreview
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 import ru.myapp.rickandmortyapi.ui.utils.advancedShadow
@@ -346,87 +350,111 @@ fun SearchViewDisplay(
             }
 
             // Characters table
-            LazyVerticalGrid(
-                modifier = Modifier.padding(
-                    start = startPadding + horizontalPadding - 4.dp,
-                    end = endPadding + horizontalPadding - 4.dp),
-                //columns = GridCells.FixedSize(190.dp),
-                columns = GridCells.Fixed(if (landscape) 4 else 2),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                items(listOfCharacters.size) { index ->
-                    val character = listOfCharacters.get(index)
-                    JetCard(
-                        name = character.name,
-                        status = character.status,
-                        gender = character.gender,
-                        species = character.species,
-                        //imagePath = "file:///android_asset/img.png",
-                        imagePath = character.imagePath,
-                        //imagePath = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                        modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
-                        onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
-                    )
-                }
-
-                val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
-                if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
-                    items(numberOfEmptySockets) {
-                        EmptySocket()
+            if (!listOfCharacters.isEmpty()) {
+                LazyVerticalGrid(
+                    modifier = Modifier.padding(
+                        start = startPadding + horizontalPadding - 4.dp,
+                        end = endPadding + horizontalPadding - 4.dp),
+                    //columns = GridCells.FixedSize(190.dp),
+                    columns = GridCells.Fixed(if (landscape) 4 else 2),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    items(listOfCharacters.size) { index ->
+                        val character = listOfCharacters.get(index)
+                        JetCard(
+                            name = character.name,
+                            status = character.status,
+                            gender = character.gender,
+                            species = character.species,
+                            //imagePath = "file:///android_asset/img.png",
+                            imagePath = character.imagePath,
+                            //imagePath = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                            modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
+                            onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
+                        )
                     }
-                }
 
-                if (previousPage != "null" || nextPage != "null") {
-                    if (previousPage != "null") {
-                        item {
-                            JetHorizontalButton(
-                                text = "Previous page",
-                                backgroundColor = MaterialTheme.colorScheme.primary,
-                                textColor = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier
-                                    .padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                                    .fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
-                                onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
-                            )
-                        }
-                    } else {
-                        item {
+                    val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
+                    if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
+                        items(numberOfEmptySockets) {
                             EmptySocket()
                         }
                     }
 
-                    if (landscape) {
-                        items(2) {
-                            EmptySocket()
+                    if (previousPage != "null" || nextPage != "null") {
+                        if (previousPage != "null") {
+                            item {
+                                JetHorizontalButton(
+                                    text = "Previous page",
+                                    backgroundColor = MaterialTheme.colorScheme.primary,
+                                    textColor = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier
+                                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
+                                    onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
+                                )
+                            }
+                        } else {
+                            item {
+                                EmptySocket()
+                            }
+                        }
+
+                        if (landscape) {
+                            items(2) {
+                                EmptySocket()
+                            }
+                        }
+
+                        if (nextPage != "null") {
+                            item {
+                                JetHorizontalButton(
+                                    text = "Next page",
+                                    backgroundColor = MaterialTheme.colorScheme.primary,
+                                    textColor = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier
+                                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
+                                    onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
+                                )
+                            }
+                        } else {
+                            item {
+                                EmptySocket()
+                            }
                         }
                     }
 
-                    if (nextPage != "null") {
-                        item {
-                            JetHorizontalButton(
-                                text = "Next page",
-                                backgroundColor = MaterialTheme.colorScheme.primary,
-                                textColor = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier
-                                    .padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                                    .fillMaxWidth(),
-                                shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
-                                onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
-                            )
-                        }
-                    } else {
-                        item {
-                            EmptySocket()
-                        }
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .size(bottomPadding + 8.dp)
+                        )
                     }
                 }
-
-                item {
-                    Spacer(
-                        modifier = Modifier
-                            .size(bottomPadding + 8.dp)
-                    )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_fluent_calendar_empty_24_filled),
+                            contentDescription = "",
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                        )
+                        Text(
+                            text = "No results found",
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
                 }
             }
         }

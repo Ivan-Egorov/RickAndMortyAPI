@@ -34,7 +34,7 @@ import ru.myapp.rickandmortyapi.ui.screens.search.views.SearchLoading
 import ru.myapp.rickandmortyapi.ui.screens.search.views.SearchViewDisplay
 
 @Composable
-fun SearchViewScreen(
+fun SearchScreen(
     navController: NavController,
 ) {
     //val viewModel = remember { SearchViewModel() }

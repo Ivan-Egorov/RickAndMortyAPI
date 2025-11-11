@@ -2,6 +2,7 @@ package ru.myapp.rickandmortyapi.ui.screens.search.views
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +33,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +46,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.microsoft.fluent.mobile.icons.R
 import ru.myapp.rickandmortyapi.domain.models.CharacterPreview
+import ru.myapp.rickandmortyapi.domain.models.Gender
+import ru.myapp.rickandmortyapi.domain.models.Status
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 import ru.myapp.rickandmortyapi.ui.utils.advancedShadow
 import ru.myapp.rickandmortyapi.ui.theme.components.JetCard
@@ -57,15 +63,12 @@ fun SearchViewDisplay(
 ) {
     val searchField = rememberSaveable { mutableStateOf("") }
     val showFilters = rememberSaveable { mutableStateOf(false) }
-    val filterAliveStatus = rememberSaveable { mutableStateOf(false) }
-    val filterDeadStatus = rememberSaveable { mutableStateOf(false) }
-    val filterUnknownStatus = rememberSaveable { mutableStateOf(false) }
+    val filterStatus = rememberSaveable { mutableStateOf(Status.ANY) }
+    val statusMenuExpanded = remember { mutableStateOf(false) }
     val filterSpecies = rememberSaveable { mutableStateOf("") }
     val filterType = rememberSaveable { mutableStateOf("") }
-    val filterMaleGender = rememberSaveable { mutableStateOf(false) }
-    val filterFemaleGender = rememberSaveable { mutableStateOf(false) }
-    val filterGenderless = rememberSaveable { mutableStateOf(false) }
-    val filterUnknownGender = rememberSaveable { mutableStateOf(false) }
+    val filterGender = rememberSaveable { mutableStateOf(Gender.ANY) }
+    val genderMenuExpanded = remember { mutableStateOf(false) }
 
     //val portrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -112,55 +115,62 @@ fun SearchViewDisplay(
                                 FilterName("status:")
                             }
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterAliveStatus.value,
-                                    onCheckedChange = { filterAliveStatus.value = !filterAliveStatus.value }
-                                )
-                                FilterName("alive")
-                            }
-                        }
+                            Box(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(onClick = {statusMenuExpanded.value = true}),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        //imageVector = ImageVector.vectorResource(R.drawable.ic_fluent_more_vertical_24_regular),
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_fluent_chevron_down_24_filled),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier
+                                            .padding(vertical = 16.dp)
+                                            .size(24.dp)
+                                    )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box(modifier = Modifier.weight(1f)) {}
+                                    DropdownMenuText(filterStatus.value.name.lowercase())
+                                }
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterDeadStatus.value,
-                                    onCheckedChange = { filterDeadStatus.value = !filterDeadStatus.value }
-                                )
-                                FilterName("dead")
-                            }
-                        }
+                                DropdownMenu(
+                                    expanded = statusMenuExpanded.value,
+                                    onDismissRequest = { statusMenuExpanded.value = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("any") },
+                                        onClick = {
+                                            filterStatus.value = Status.ANY
+                                            statusMenuExpanded.value = false
+                                        }
+                                    )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box(modifier = Modifier.weight(1f)) {}
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("alive") },
+                                        onClick = {
+                                            filterStatus.value = Status.ALIVE
+                                            statusMenuExpanded.value = false
+                                        }
+                                    )
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterUnknownStatus.value,
-                                    onCheckedChange = { filterUnknownStatus.value = !filterUnknownStatus.value }
-                                )
-                                FilterName("unknown status")
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("dead") },
+                                        onClick = {
+                                            filterStatus.value = Status.DEAD
+                                            statusMenuExpanded.value = false
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("unknown") },
+                                        onClick = {
+                                            filterStatus.value = Status.UNKNOWN
+                                            statusMenuExpanded.value = false
+                                        }
+                                    )
+                                }
                             }
                         }
 
@@ -240,75 +250,71 @@ fun SearchViewDisplay(
                                 FilterName("gender:")
                             }
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterMaleGender.value,
-                                    onCheckedChange = { filterMaleGender.value = !filterMaleGender.value }
-                                )
-                                FilterName("male")
-                            }
-                        }
+                            Box(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(onClick = { genderMenuExpanded.value = true }),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        //imageVector = ImageVector.vectorResource(R.drawable.ic_fluent_more_vertical_24_regular),
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_fluent_chevron_down_24_filled),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier
+                                            .padding(vertical = 16.dp)
+                                            .size(24.dp)
+                                    )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box(modifier = Modifier.weight(1f)) {}
+                                    DropdownMenuText(filterGender.value.name.lowercase())
+                                }
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterFemaleGender.value,
-                                    onCheckedChange = { filterFemaleGender.value = !filterFemaleGender.value }
-                                )
-                                FilterName("female")
-                            }
-                        }
+                                DropdownMenu(
+                                    expanded = genderMenuExpanded.value,
+                                    onDismissRequest = { genderMenuExpanded.value = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("any") },
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box(modifier = Modifier.weight(1f)) {}
+                                        onClick = {
+                                            filterGender.value = Gender.ANY
+                                            genderMenuExpanded.value = false
+                                        }
+                                    )
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterGenderless.value,
-                                    onCheckedChange = { filterGenderless.value = !filterGenderless.value }
-                                )
-                                FilterName("genderless")
-                            }
-                        }
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("male") },
+                                        onClick = {
+                                            filterGender.value = Gender.MALE
+                                            genderMenuExpanded.value = false
+                                        }
+                                    )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box(modifier = Modifier.weight(1f)) {}
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("female") },
+                                        onClick = {
+                                            filterGender.value = Gender.FEMALE
+                                            genderMenuExpanded.value = false
+                                        }
+                                    )
 
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = filterUnknownGender.value,
-                                    onCheckedChange = { filterUnknownGender.value = !filterUnknownGender.value }
-                                )
-                                FilterName("unknown gender")
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("genderless") },
+                                        onClick = {
+                                            filterGender.value = Gender.GENDERLESS
+                                            genderMenuExpanded.value = false
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { DropdownMenuText("unknown") },
+                                        onClick = {
+                                            filterGender.value = Gender.UNKNOWN
+                                            genderMenuExpanded.value = false
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -323,7 +329,15 @@ fun SearchViewDisplay(
                             textColor = Color.Black,
                             modifier = Modifier.weight(1f),
                             shape = RectangleShape,
-                            onClick = { dispatcher.invoke(SearchEvent.Search(searchField.value)) }
+                            onClick = {
+                                dispatcher.invoke(SearchEvent.Search(
+                                    searchField = searchField.value,
+                                    filterStatus = filterStatus.value,
+                                    filterSpecies = filterSpecies.value,
+                                    filterType = filterType.value,
+                                    filterGender = filterGender.value,
+                                ))
+                            }
                         )
 
                         JetHorizontalButton(
@@ -334,15 +348,10 @@ fun SearchViewDisplay(
                             shape = RectangleShape,
                             onClick = {
                                 showFilters.value = false
-                                filterAliveStatus.value = false
-                                filterDeadStatus.value = false
-                                filterUnknownStatus.value = false
+                                filterStatus.value = Status.ANY
                                 filterSpecies.value = ""
                                 filterType.value = ""
-                                filterMaleGender.value = false
-                                filterFemaleGender.value = false
-                                filterGenderless.value = false
-                                filterUnknownGender.value = false
+                                filterGender.value = Gender.ANY
                             }
                         )
                     }
@@ -503,40 +512,28 @@ fun SearchViewDisplay(
             )
 
             JetIconButton(
-                iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_search_24_regular,
-                onClick = { dispatcher.invoke(SearchEvent.Search(searchField.value)) }
+                iconId = R.drawable.ic_fluent_search_24_regular,
+                onClick = {
+                    dispatcher.invoke(SearchEvent.Search(
+                        searchField = searchField.value,
+                        filterStatus = filterStatus.value,
+                        filterSpecies = filterSpecies.value,
+                        filterType = filterType.value,
+                        filterGender = filterGender.value,
+                    ))
+                }
             )
 
             JetIconButton(
-                iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_filter_24_regular,
+                iconId = R.drawable.ic_fluent_filter_24_regular,
                 onClick = { showFilters.value = !showFilters.value }
             )
         }
-
-        /*if (previousPage != "null") {
-            JetIconButtonCircle(
-                modifier = Modifier
-                    .padding(start = startPadding+ 4.dp)
-                    .align(Alignment.CenterStart),
-                iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_left_24_regular
-            ) { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
-        }
-
-        if (nextPage != "null") {
-            JetIconButtonCircle(
-                modifier = Modifier
-                    .padding(end = endPadding + 4.dp)
-                    .align(Alignment.CenterEnd),
-                iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_right_24_regular
-            ) { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
-        }*/
     }
 }
 
 @Composable
-fun FilterName(
-    name: String
-) {
+fun FilterName(name: String) {
     Text(
         text = name,
         style = MaterialTheme.typography.titleMedium,
@@ -551,5 +548,14 @@ fun EmptySocket() {
             .padding(top = 8.dp, start = 4.dp, end = 4.dp)
             .fillMaxWidth()
             .height(56.dp)
+    )
+}
+
+@Composable
+fun DropdownMenuText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.displayMedium,
+        color = MaterialTheme.colorScheme.onSurface
     )
 }

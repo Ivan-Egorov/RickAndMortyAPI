@@ -23,7 +23,7 @@ import ru.myapp.rickandmortyapi.ui.theme.components.JetCard
 
 import coil3.compose.AsyncImage
 import ru.myapp.rickandmortyapi.ui.navigation.NavHostScreen
-import ru.myapp.rickandmortyapi.ui.screens.search.SearchViewScreen
+import ru.myapp.rickandmortyapi.ui.screens.search.SearchScreen
 import ru.myapp.rickandmortyapi.ui.screens.search.views.SearchViewDisplay
 
 class MainActivity : ComponentActivity() {

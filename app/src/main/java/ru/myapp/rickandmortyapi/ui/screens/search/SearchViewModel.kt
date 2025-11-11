@@ -1,5 +1,6 @@
 package ru.myapp.rickandmortyapi.ui.screens.search
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -8,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,19 +28,67 @@ import kotlinx.coroutines.launch
 import okhttp3.internal.wait
 import org.json.JSONObject
 import ru.myapp.rickandmortyapi.domain.models.CharacterPreview
+import ru.myapp.rickandmortyapi.domain.models.Gender
+import ru.myapp.rickandmortyapi.domain.models.Status
 import ru.myapp.rickandmortyapi.ui.screens.details.models.DetailsEvent
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 
 class SearchViewModel: ViewModel() {
     val baseUrl = "https://rickandmortyapi.com/api/character"
+    var url = baseUrl
 
-    /*@Composable
-    fun GetByName(
-        dispatcher: (SearchEvent) -> Unit,
-        name: String
+    @Composable
+    fun LoadCharacters(
+        dispatcher: (SearchEvent) -> Unit
     ) {
-        GetByUrl(dispatcher, "$baseUrl/?name=$name")
-    }*/
+        GetByUrl(dispatcher = dispatcher, url = url)
+    }
+
+    fun changeUrl(url: String) {
+        this.url = url
+    }
+
+    fun search(
+        searchField: String,
+        filterStatus: Status,
+        filterSpecies: String,
+        filterType: String,
+        filterGender: Gender,
+    ) {
+        val urlBuilder: StringBuilder = StringBuilder(baseUrl)
+        //url = "$baseUrl/?name=${searchField}"
+        if (searchField != "" ||
+            filterStatus.name != "ANY" ||
+            filterSpecies != "" ||
+            filterType != "" ||
+            filterGender.name != "ANY") {
+
+            urlBuilder.append("/?")
+
+            if (searchField != "") {
+                urlBuilder.append("name=${searchField}&")
+            }
+
+            if (filterStatus.name != "ANY") {
+                urlBuilder.append("status=${filterStatus.name.lowercase()}&")
+            }
+
+            if (filterSpecies != "") {
+                urlBuilder.append("species=${filterSpecies}&")
+            }
+
+            if (filterType != "") {
+                urlBuilder.append("type=${filterType}&")
+            }
+
+            if (filterGender.name != "ANY") {
+                urlBuilder.append("gender=${filterGender.name.lowercase()}&")
+            }
+        }
+
+        url = urlBuilder.toString().substring(0, urlBuilder.length - 1)
+        Log.e("url", url)
+    }
 
     @Composable
     fun GetByUrl(
@@ -53,8 +103,6 @@ class SearchViewModel: ViewModel() {
         LaunchedEffect(key1 = Unit) {
 
             try {
-                //val response = client.get("https://rickandmortyapi.com/api/character/?name=rick&status=dead")
-                //val response = client.get("https://rickandmortyapi.com/api/character/?name=rick")
                 val response = client.get(url)
                 val jsonResponse: JSONObject = JSONObject(response.bodyAsText())
 
@@ -89,7 +137,6 @@ class SearchViewModel: ViewModel() {
             ))
         }
     }
-
 }
 
 

@@ -57,6 +57,7 @@ class SearchViewModel: ViewModel() {
     ) {
         val urlBuilder: StringBuilder = StringBuilder(baseUrl)
         //url = "$baseUrl/?name=${searchField}"
+        url = baseUrl
         if (searchField != "" ||
             filterStatus.name != "ANY" ||
             filterSpecies != "" ||
@@ -84,9 +85,10 @@ class SearchViewModel: ViewModel() {
             if (filterGender.name != "ANY") {
                 urlBuilder.append("gender=${filterGender.name.lowercase()}&")
             }
+
+            url = urlBuilder.toString().substring(0, urlBuilder.length - 1)
         }
 
-        url = urlBuilder.toString().substring(0, urlBuilder.length - 1)
         Log.e("url", url)
     }
 

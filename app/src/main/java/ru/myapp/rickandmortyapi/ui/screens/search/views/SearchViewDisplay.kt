@@ -80,25 +80,211 @@ fun SearchViewDisplay(
     val bottomPadding = WindowInsets.safeContent.asPaddingValues().calculateBottomPadding()
     val startPadding = if (landscape) WindowInsets.safeContent.asPaddingValues().calculateStartPadding(LayoutDirection.Ltr) else 0.dp
     val endPadding = if (landscape) WindowInsets.safeContent.asPaddingValues().calculateEndPadding(LayoutDirection.Ltr) else 0.dp
+    val searchBarPadding = 56.dp
+    val filtersPadding = if (showFilters.value) 274.dp else 0.dp
     val horizontalPadding = 16.dp
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+
+        // Characters table
+        if (!listOfCharacters.isEmpty()) {
+            PullToRefreshBox(
+                isRefreshing = false,
+                onRefresh = {
+                    dispatcher.invoke(SearchEvent.Refresh)
+                }
+            ) {
+                LazyVerticalGrid(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(
+                            top = topPadding + searchBarPadding + filtersPadding,
+                            start = startPadding + horizontalPadding - 4.dp,
+                            end = endPadding + horizontalPadding - 4.dp),
+                    columns = GridCells.Fixed(if (landscape) 4 else 2),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    items(listOfCharacters.size) { index ->
+                        val character = listOfCharacters.get(index)
+                        JetCard(
+                            name = character.name,
+                            status = character.status,
+                            gender = character.gender,
+                            species = character.species,
+                            imagePath = character.imagePath,
+                            modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
+                            onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
+                        )
+                    }
+
+                    val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
+                    if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
+                        items(numberOfEmptySockets) {
+                            EmptySocket()
+                        }
+                    }
+
+                    if (previousPage != "null" || nextPage != "null") {
+                        if (previousPage != "null") {
+                            item {
+                                JetHorizontalButton(
+                                    text = "Previous page",
+                                    backgroundColor = MaterialTheme.colorScheme.primary,
+                                    textColor = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier
+                                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
+                                    onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
+                                )
+                            }
+                        } else {
+                            item {
+                                EmptySocket()
+                            }
+                        }
+
+                        if (landscape) {
+                            items(2) {
+                                EmptySocket()
+                            }
+                        }
+
+                        if (nextPage != "null") {
+                            item {
+                                JetHorizontalButton(
+                                    text = "Next page",
+                                    backgroundColor = MaterialTheme.colorScheme.primary,
+                                    textColor = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier
+                                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
+                                    onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
+                                )
+                            }
+                        } else {
+                            item {
+                                EmptySocket()
+                            }
+                        }
+                    }
+
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .size(bottomPadding + 8.dp)
+                        )
+                    }
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_fluent_calendar_empty_24_filled),
+                        contentDescription = "",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                    )
+                    Text(
+                        text = "No results found",
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.5f),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+        }
+
+        // Search panel
         Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Spacer(
-                modifier = Modifier.size(topPadding + 56.dp)
-            )
+            modifier = Modifier
+                .fillMaxWidth()
+                .advancedShadow(
+                    color = Color.Black,
+                    alpha = 0.25f,
+                    shadowBlurRadius = 2.dp,
+                    offsetY = 2.dp)
+                .align(Alignment.TopCenter)) {
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .padding(
+                        top = topPadding,
+                        start = startPadding + horizontalPadding,
+                        end = endPadding + horizontalPadding),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                TextField(
+                    value = searchField.value,
+                    onValueChange = { searchField.value = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    textStyle = MaterialTheme.typography.displayMedium,
+                    placeholder = {
+                        Text(
+                            text = "Search characters by name",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.surface.copy(0.5f)
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedContainerColor = MaterialTheme.colorScheme.primary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary, // to hide line under the text
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary, // to hide line under the text
+                    )
+                )
+
+                JetIconButton(
+                    iconId = R.drawable.ic_fluent_search_24_regular,
+                    onClick = {
+                        dispatcher.invoke(SearchEvent.Search(
+                            searchField = searchField.value,
+                            filterStatus = filterStatus.value,
+                            filterSpecies = filterSpecies.value,
+                            filterType = filterType.value,
+                            filterGender = filterGender.value,
+                        ))
+                    }
+                )
+
+                JetIconButton(
+                    iconId = R.drawable.ic_fluent_filter_24_regular,
+                    tint = if (
+                        filterStatus.value.name != "ANY" ||
+                        filterSpecies.value != "" ||
+                        filterType.value != "" ||
+                        filterGender.value.name != "ANY")
+                        Color.Cyan
+                    else
+                        MaterialTheme.colorScheme.surface,
+                    onClick = { showFilters.value = !showFilters.value }
+                )
+            }
 
             // Filters
             if (showFilters.value) {
                 Column(
                     modifier = Modifier
+                        //.padding(top = topPadding + searchBarPadding)
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        //.background(color = MaterialTheme.colorScheme.surface)
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     Column(
                         modifier = Modifier
@@ -106,11 +292,12 @@ fun SearchViewDisplay(
                             .padding(
                                 start = startPadding + horizontalPadding,
                                 end = endPadding + horizontalPadding),
-                        //verticalArrangement = Arrangement.spacedBy(0.dp)
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .height(54.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -131,7 +318,7 @@ fun SearchViewDisplay(
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier
-                                            .padding(vertical = 16.dp)
+                                            .padding(vertical = 15.dp)
                                             .size(24.dp)
                                     )
 
@@ -245,7 +432,8 @@ fun SearchViewDisplay(
 
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .height(54.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -266,7 +454,7 @@ fun SearchViewDisplay(
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier
-                                            .padding(vertical = 16.dp)
+                                            .padding(vertical = 15.dp)
                                             .size(24.dp)
                                     )
 
@@ -360,185 +548,6 @@ fun SearchViewDisplay(
                     }
                 }
             }
-
-            // Characters table
-            if (!listOfCharacters.isEmpty()) {
-                PullToRefreshBox(
-                    isRefreshing = false,
-                    onRefresh = {
-                        dispatcher.invoke(SearchEvent.Refresh)
-                    }
-                ) {
-                    LazyVerticalGrid(
-                        modifier = Modifier.padding(
-                            start = startPadding + horizontalPadding - 4.dp,
-                            end = endPadding + horizontalPadding - 4.dp),
-                        //columns = GridCells.FixedSize(190.dp),
-                        columns = GridCells.Fixed(if (landscape) 4 else 2),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        items(listOfCharacters.size) { index ->
-                            val character = listOfCharacters.get(index)
-                            JetCard(
-                                name = character.name,
-                                status = character.status,
-                                gender = character.gender,
-                                species = character.species,
-                                //imagePath = "file:///android_asset/img.png",
-                                imagePath = character.imagePath,
-                                //imagePath = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                                modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
-                                onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
-                            )
-                        }
-
-                        val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
-                        if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
-                            items(numberOfEmptySockets) {
-                                EmptySocket()
-                            }
-                        }
-
-                        if (previousPage != "null" || nextPage != "null") {
-                            if (previousPage != "null") {
-                                item {
-                                    JetHorizontalButton(
-                                        text = "Previous page",
-                                        backgroundColor = MaterialTheme.colorScheme.primary,
-                                        textColor = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier
-                                            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                                            .fillMaxWidth(),
-                                        shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
-                                        onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
-                                    )
-                                }
-                            } else {
-                                item {
-                                    EmptySocket()
-                                }
-                            }
-
-                            if (landscape) {
-                                items(2) {
-                                    EmptySocket()
-                                }
-                            }
-
-                            if (nextPage != "null") {
-                                item {
-                                    JetHorizontalButton(
-                                        text = "Next page",
-                                        backgroundColor = MaterialTheme.colorScheme.primary,
-                                        textColor = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier
-                                            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                                            .fillMaxWidth(),
-                                        shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
-                                        onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
-                                    )
-                                }
-                            } else {
-                                item {
-                                    EmptySocket()
-                                }
-                            }
-                        }
-
-                        item {
-                            Spacer(
-                                modifier = Modifier
-                                    .size(bottomPadding + 8.dp)
-                            )
-                        }
-                    }
-                }
-
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_fluent_calendar_empty_24_filled),
-                            contentDescription = "",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(0.5f),
-                        )
-                        Text(
-                            text = "No results found",
-                            color = MaterialTheme.colorScheme.onSurface.copy(0.5f),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-            }
-        }
-
-        // Search panel
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .advancedShadow(
-                    color = Color.Black,
-                    alpha = 0.25f,
-                    shadowBlurRadius = 2.dp,
-                    offsetY = 2.dp)
-                .background(color = MaterialTheme.colorScheme.primary)
-                .padding(
-                    top = topPadding,
-                    start = startPadding + horizontalPadding,
-                    end = endPadding + horizontalPadding),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            TextField(
-                value = searchField.value,
-                onValueChange = { searchField.value = it },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp),
-                textStyle = MaterialTheme.typography.displayMedium,
-                placeholder = {
-                    Text(
-                        text = "Search characters by name",
-                        style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.surface.copy(0.5f)
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    focusedContainerColor = MaterialTheme.colorScheme.primary,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-                    cursorColor = MaterialTheme.colorScheme.onPrimary,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.primary, // to hide line under the text
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.primary, // to hide line under the text
-                )
-            )
-
-            JetIconButton(
-                iconId = R.drawable.ic_fluent_search_24_regular,
-                onClick = {
-                    dispatcher.invoke(SearchEvent.Search(
-                        searchField = searchField.value,
-                        filterStatus = filterStatus.value,
-                        filterSpecies = filterSpecies.value,
-                        filterType = filterType.value,
-                        filterGender = filterGender.value,
-                    ))
-                }
-            )
-
-            JetIconButton(
-                iconId = R.drawable.ic_fluent_filter_24_regular,
-                onClick = { showFilters.value = !showFilters.value }
-            )
         }
     }
 }

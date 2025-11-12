@@ -19,3 +19,5 @@ val WhiteColor = Color(0xFFFFFFFF)
 val LightGrayColor = Color(0xFFCFCFCF)
 
 val AlmostBlackColor = Color(0xFF222222)
+
+val AlmostWhiteColor = Color(0xFFFAFAFA)

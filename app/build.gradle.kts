@@ -78,4 +78,6 @@ dependencies {
     implementation("io.ktor:ktor-client-core:3.2.1")
     // Движок для Android
     implementation("io.ktor:ktor-client-android:3.2.1")
+
+    implementation("io.ktor:ktor-client-cio:3.2.1")
 }

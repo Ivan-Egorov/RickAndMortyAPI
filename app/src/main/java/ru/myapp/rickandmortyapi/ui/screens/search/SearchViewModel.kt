@@ -33,9 +33,23 @@ import ru.myapp.rickandmortyapi.domain.models.Status
 import ru.myapp.rickandmortyapi.ui.screens.details.models.DetailsEvent
 import ru.myapp.rickandmortyapi.ui.screens.search.models.SearchEvent
 
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.cache.*
+import io.ktor.client.plugins.cache.storage.FileStorage
+import java.nio.file.Files
+import java.nio.file.Paths
+
 class SearchViewModel: ViewModel() {
     val baseUrl = "https://rickandmortyapi.com/api/character"
     var url = baseUrl
+
+    val client = HttpClient(CIO) {
+        install(HttpCache) /*{
+            val cacheFile = Files.createDirectories(Paths.get("build/cache")).toFile()
+            publicStorage(FileStorage(cacheFile))
+        }*/
+    }
 
     @Composable
     fun LoadCharacters(
@@ -101,7 +115,7 @@ class SearchViewModel: ViewModel() {
         var nextPage = "null"
         val listOfCharacters = mutableListOf<CharacterPreview>()
 
-        val client = HttpClient()
+        //val client = HttpClient()
         LaunchedEffect(key1 = Unit) {
 
             try {
@@ -129,7 +143,7 @@ class SearchViewModel: ViewModel() {
                 e.localizedMessage ?: "error"
             }
             finally {
-                client.close()
+                //client.close()
             }
 
             dispatcher.invoke(SearchEvent.EnterScreen(

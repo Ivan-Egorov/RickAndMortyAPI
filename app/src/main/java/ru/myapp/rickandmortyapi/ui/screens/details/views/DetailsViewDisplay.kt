@@ -1,12 +1,22 @@
 package ru.myapp.rickandmortyapi.ui.screens.details.views
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,10 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -46,67 +58,121 @@ fun DetailsViewDisplay(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Spacer(modifier = Modifier.size(20.dp))
+    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val topPadding = WindowInsets.safeContent.asPaddingValues().calculateTopPadding()
+    val bottomPadding = WindowInsets.safeContent.asPaddingValues().calculateBottomPadding()
+    val startPadding = if (landscape) WindowInsets.safeContent.asPaddingValues().calculateStartPadding(LayoutDirection.Ltr) else 0.dp
+    val endPadding = if (landscape) WindowInsets.safeContent.asPaddingValues().calculateEndPadding(LayoutDirection.Ltr) else 0.dp
+    val horizontalPadding = 16.dp
 
-        AsyncImage(
-            model = image,
-            contentDescription = "",
+    if (landscape) {
+        Row(
             modifier = Modifier
-                .fillMaxWidth()
-        )
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(
+                    top = topPadding,
+                    bottom = bottomPadding,
+                    start = startPadding + horizontalPadding,
+                    end = endPadding + horizontalPadding),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            /*Column(
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Box(modifier = Modifier.weight(1f))
 
-        DetailsTextTemplate("name: ", name)
-        SimpleDivider()
-        DetailsTextTemplate("status: ", status)
-        SimpleDivider()
-        DetailsTextTemplate("species: ", species)
-        SimpleDivider()
-        DetailsTextTemplate("type: ", type)
-        SimpleDivider()
-        DetailsTextTemplate("gender: ", gender)
-        SimpleDivider()
-        DetailsTextTemplate("origin: ", origin)
-        SimpleDivider()
-        DetailsTextTemplate("location: ", location)
-        SimpleDivider()
-        DetailsTextTemplate("episodes: ", episodes.toString())
+                AsyncImage(
+                    model = image,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .weight(3f)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.FillHeight
+                )
 
-        JetHorizontalButton(
-            text = "Return",
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            textColor = Color.Black,
-            modifier = Modifier
-                .fillMaxWidth(),
-            onClick = { dispatcher.invoke(DetailsEvent.Close) }
-        )
+                Box(modifier = Modifier.weight(1f))
+            }*/
 
-        Spacer(modifier = Modifier.size(20.dp))
-    }
+            AsyncImage(
+                model = image,
+                contentDescription = "",
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.FillHeight
+            )
 
-    /*Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                JetHorizontalButton(
+                    text = "Return",
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    textColor = Color.Black,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    onClick = { dispatcher.invoke(DetailsEvent.Close) }
+                )
+
+                DetailsTextTemplate("name: ", name)
+                SimpleDivider()
+                DetailsTextTemplate("status: ", status)
+                SimpleDivider()
+                DetailsTextTemplate("species: ", species)
+                SimpleDivider()
+                DetailsTextTemplate("type: ", type)
+                SimpleDivider()
+                DetailsTextTemplate("gender: ", gender)
+                SimpleDivider()
+                DetailsTextTemplate("origin: ", origin)
+                SimpleDivider()
+                DetailsTextTemplate("location: ", location)
+                SimpleDivider()
+                DetailsTextTemplate("episodes: ", episodes.toString())
+
+            }
+        }
+    } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
-                .padding(horizontal = 12.dp),
+                .padding(
+                    top = topPadding,
+                    bottom = bottomPadding,
+                    start = startPadding + horizontalPadding,
+                    end = endPadding + horizontalPadding),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Spacer(modifier = Modifier.size(20.dp))
+            /*Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(modifier = Modifier.weight(1f))
+
+                AsyncImage(
+                    model = image,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .weight(3f)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.FillWidth
+                )
+
+                Box(modifier = Modifier.weight(1f))
+            }*/
 
             AsyncImage(
                 model = image,
                 contentDescription = "",
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.FillWidth
             )
 
             DetailsTextTemplate("name: ", name)
@@ -125,18 +191,16 @@ fun DetailsViewDisplay(
             SimpleDivider()
             DetailsTextTemplate("episodes: ", episodes.toString())
 
-            Spacer(modifier = Modifier.size(20.dp))
+            JetHorizontalButton(
+                text = "Return",
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                textColor = Color.Black,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onClick = { dispatcher.invoke(DetailsEvent.Close) }
+            )
         }
-
-        JetIconButtonCircle(
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .align(Alignment.CenterStart),
-            iconId = com.microsoft.fluent.mobile.icons.R.drawable.ic_fluent_chevron_left_24_regular,
-            onClick = { dispatcher.invoke(DetailsEvent.Close) }
-        )
-    }*/
-
+    }
 }
 
 @Composable
@@ -161,6 +225,6 @@ fun SimpleDivider() {
     HorizontalDivider(
         modifier = Modifier.fillMaxWidth(),
         thickness = 1.dp,
-        color = Color.Black
+        color = Color.Black.copy(0.5f)
     )
 }

@@ -26,11 +26,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,7 @@ import ru.myapp.rickandmortyapi.ui.theme.components.JetCard
 import ru.myapp.rickandmortyapi.ui.theme.components.JetHorizontalButton
 import ru.myapp.rickandmortyapi.ui.theme.components.JetIconButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchViewDisplay(
     previousPage: String,
@@ -194,7 +197,7 @@ fun SearchViewDisplay(
                                     Text(
                                         text = "any species",
                                         style = MaterialTheme.typography.displayMedium,
-                                        color = Color.Black.copy(0.5f)
+                                        color = MaterialTheme.colorScheme.onSurface.copy(0.5f)
                                     )
                                 },
                                 colors = TextFieldDefaults.colors(
@@ -227,7 +230,7 @@ fun SearchViewDisplay(
                                     Text(
                                         text = "any type",
                                         style = MaterialTheme.typography.displayMedium,
-                                        color = Color.Black.copy(0.5f)
+                                        color = MaterialTheme.colorScheme.onSurface.copy(0.5f)
                                     )
                                 },
                                 colors = TextFieldDefaults.colors(
@@ -326,7 +329,7 @@ fun SearchViewDisplay(
                         JetHorizontalButton(
                             text = "Apply filters",
                             backgroundColor = MaterialTheme.colorScheme.surface,
-                            textColor = Color.Black,
+                            textColor = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f),
                             shape = RectangleShape,
                             onClick = {
@@ -360,89 +363,97 @@ fun SearchViewDisplay(
 
             // Characters table
             if (!listOfCharacters.isEmpty()) {
-                LazyVerticalGrid(
-                    modifier = Modifier.padding(
-                        start = startPadding + horizontalPadding - 4.dp,
-                        end = endPadding + horizontalPadding - 4.dp),
-                    //columns = GridCells.FixedSize(190.dp),
-                    columns = GridCells.Fixed(if (landscape) 4 else 2),
-                    horizontalArrangement = Arrangement.Center
+                PullToRefreshBox(
+                    isRefreshing = false,
+                    onRefresh = {
+                        dispatcher.invoke(SearchEvent.Refresh)
+                    }
                 ) {
-                    items(listOfCharacters.size) { index ->
-                        val character = listOfCharacters.get(index)
-                        JetCard(
-                            name = character.name,
-                            status = character.status,
-                            gender = character.gender,
-                            species = character.species,
-                            //imagePath = "file:///android_asset/img.png",
-                            imagePath = character.imagePath,
-                            //imagePath = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                            modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
-                            onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
-                        )
-                    }
-
-                    val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
-                    if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
-                        items(numberOfEmptySockets) {
-                            EmptySocket()
+                    LazyVerticalGrid(
+                        modifier = Modifier.padding(
+                            start = startPadding + horizontalPadding - 4.dp,
+                            end = endPadding + horizontalPadding - 4.dp),
+                        //columns = GridCells.FixedSize(190.dp),
+                        columns = GridCells.Fixed(if (landscape) 4 else 2),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        items(listOfCharacters.size) { index ->
+                            val character = listOfCharacters.get(index)
+                            JetCard(
+                                name = character.name,
+                                status = character.status,
+                                gender = character.gender,
+                                species = character.species,
+                                //imagePath = "file:///android_asset/img.png",
+                                imagePath = character.imagePath,
+                                //imagePath = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                                modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
+                                onClick = { dispatcher.invoke(SearchEvent.OpenDetails(character.id)) }
+                            )
                         }
-                    }
 
-                    if (previousPage != "null" || nextPage != "null") {
-                        if (previousPage != "null") {
-                            item {
-                                JetHorizontalButton(
-                                    text = "Previous page",
-                                    backgroundColor = MaterialTheme.colorScheme.primary,
-                                    textColor = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier
-                                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                                        .fillMaxWidth(),
-                                    shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
-                                    onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
-                                )
-                            }
-                        } else {
-                            item {
+                        val numberOfEmptySockets = if (landscape) 4 - (listOfCharacters.size % 4) else listOfCharacters.size % 2
+                        if (numberOfEmptySockets != 4 && numberOfEmptySockets != 0) {
+                            items(numberOfEmptySockets) {
                                 EmptySocket()
                             }
                         }
 
-                        if (landscape) {
-                            items(2) {
-                                EmptySocket()
+                        if (previousPage != "null" || nextPage != "null") {
+                            if (previousPage != "null") {
+                                item {
+                                    JetHorizontalButton(
+                                        text = "Previous page",
+                                        backgroundColor = MaterialTheme.colorScheme.primary,
+                                        textColor = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier
+                                            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                            .fillMaxWidth(),
+                                        shape = RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp),
+                                        onClick = { dispatcher.invoke(SearchEvent.ChangePage(previousPage)) }
+                                    )
+                                }
+                            } else {
+                                item {
+                                    EmptySocket()
+                                }
+                            }
+
+                            if (landscape) {
+                                items(2) {
+                                    EmptySocket()
+                                }
+                            }
+
+                            if (nextPage != "null") {
+                                item {
+                                    JetHorizontalButton(
+                                        text = "Next page",
+                                        backgroundColor = MaterialTheme.colorScheme.primary,
+                                        textColor = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier
+                                            .padding(top = 8.dp, start = 4.dp, end = 4.dp)
+                                            .fillMaxWidth(),
+                                        shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
+                                        onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
+                                    )
+                                }
+                            } else {
+                                item {
+                                    EmptySocket()
+                                }
                             }
                         }
 
-                        if (nextPage != "null") {
-                            item {
-                                JetHorizontalButton(
-                                    text = "Next page",
-                                    backgroundColor = MaterialTheme.colorScheme.primary,
-                                    textColor = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier
-                                        .padding(top = 8.dp, start = 4.dp, end = 4.dp)
-                                        .fillMaxWidth(),
-                                    shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
-                                    onClick = { dispatcher.invoke(SearchEvent.ChangePage(nextPage)) }
-                                )
-                            }
-                        } else {
-                            item {
-                                EmptySocket()
-                            }
+                        item {
+                            Spacer(
+                                modifier = Modifier
+                                    .size(bottomPadding + 8.dp)
+                            )
                         }
-                    }
-
-                    item {
-                        Spacer(
-                            modifier = Modifier
-                                .size(bottomPadding + 8.dp)
-                        )
                     }
                 }
+
             } else {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -497,7 +508,7 @@ fun SearchViewDisplay(
                     Text(
                         text = "Search characters by name",
                         style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.surface
+                        color = MaterialTheme.colorScheme.surface.copy(0.5f)
                     )
                 },
                 colors = TextFieldDefaults.colors(

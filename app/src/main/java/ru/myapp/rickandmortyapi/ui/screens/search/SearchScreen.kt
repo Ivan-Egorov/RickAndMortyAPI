@@ -22,6 +22,7 @@ fun SearchScreen(
 
 //    val baseUrl = "https://rickandmortyapi.com/api/character"
 //    val url = rememberSaveable { mutableStateOf(baseUrl) }
+//    val url = rememberSaveable { mutableStateOf("https://rickandmortyapi.com/api/character") }
 
     val dispatcher: (SearchEvent) -> Unit = { event ->
         when (event) {
@@ -52,6 +53,7 @@ fun SearchScreen(
 
                 viewState.value = SearchViewState.Loading
             }
+            SearchEvent.Refresh -> { viewState.value = SearchViewState.Loading }
         }
     }
 

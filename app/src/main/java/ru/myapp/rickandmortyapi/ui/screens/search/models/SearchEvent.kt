@@ -25,4 +25,6 @@ sealed interface SearchEvent {
         val filterType: String,
         val filterGender: Gender,
     ): SearchEvent
+
+    data object Refresh: SearchEvent
 }

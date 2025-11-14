@@ -77,23 +77,6 @@ fun DetailsViewDisplay(
                     end = endPadding + horizontalPadding),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            /*Column(
-                modifier = Modifier.fillMaxHeight()
-            ) {
-                Box(modifier = Modifier.weight(1f))
-
-                AsyncImage(
-                    model = image,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .weight(3f)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.FillHeight
-                )
-
-                Box(modifier = Modifier.weight(1f))
-            }*/
-
             AsyncImage(
                 model = image,
                 contentDescription = "",
@@ -104,11 +87,33 @@ fun DetailsViewDisplay(
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.fillMaxWidth(),
             ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    DetailsTextTemplate("name: ", name)
+                    SimpleDivider()
+                    DetailsTextTemplate("status: ", status)
+                    SimpleDivider()
+                    DetailsTextTemplate("species: ", species)
+                    SimpleDivider()
+                    DetailsTextTemplate("type: ", type)
+                    SimpleDivider()
+                    DetailsTextTemplate("gender: ", gender)
+                    SimpleDivider()
+                    DetailsTextTemplate("origin: ", origin)
+                    SimpleDivider()
+                    DetailsTextTemplate("location: ", location)
+                    SimpleDivider()
+                    DetailsTextTemplate("episodes: ", episodes.toString())
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
                 JetHorizontalButton(
                     text = "Return",
                     backgroundColor = MaterialTheme.colorScheme.surface,
@@ -117,23 +122,6 @@ fun DetailsViewDisplay(
                         .fillMaxWidth(),
                     onClick = { dispatcher.invoke(DetailsEvent.Close) }
                 )
-
-                DetailsTextTemplate("name: ", name)
-                SimpleDivider()
-                DetailsTextTemplate("status: ", status)
-                SimpleDivider()
-                DetailsTextTemplate("species: ", species)
-                SimpleDivider()
-                DetailsTextTemplate("type: ", type)
-                SimpleDivider()
-                DetailsTextTemplate("gender: ", gender)
-                SimpleDivider()
-                DetailsTextTemplate("origin: ", origin)
-                SimpleDivider()
-                DetailsTextTemplate("location: ", location)
-                SimpleDivider()
-                DetailsTextTemplate("episodes: ", episodes.toString())
-
             }
         }
     } else {
@@ -149,23 +137,6 @@ fun DetailsViewDisplay(
                     end = endPadding + horizontalPadding),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            /*Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Box(modifier = Modifier.weight(1f))
-
-                AsyncImage(
-                    model = image,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .weight(3f)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.FillWidth
-                )
-
-                Box(modifier = Modifier.weight(1f))
-            }*/
-
             AsyncImage(
                 model = image,
                 contentDescription = "",
